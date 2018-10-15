@@ -16,20 +16,23 @@ const int width = 700; //x
 const int height = 600; //y
 
 const float radius = 50.0;
+// координаты центра окружности
 float X = 650.0;
 float Y = 440.0;
 
-bool count = 0;
+bool count = 0; // для смены дня и ночи
 
 void reshape(int w, int h)
 {
-        glViewport(0, 0, w, h);
+        glViewport(0, 0, w, h); // задание области вывода (0,0) - левый нижний угол, (w, h) - ширина и высота
 
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        gluOrtho2D(0, w, 0, h);
+        glMatrixMode(GL_PROJECTION); // задание перспективной проекции; 
+                                     // матрица проекций задает как будут проецироваться трехмерные объекты 
+                                     // на плоскость экрана (в оконные координаты)
+        glLoadIdentity(); // заменяет текущую матрицу на единичную
+        gluOrtho2D(0, w, 0, h); // задание ортографической (параллельной) проекции
 
-        glMatrixMode(GL_MODELVIEW);
+        glMatrixMode(GL_MODELVIEW); // далее будет проводиться только преобразование объектов сцены
         glLoadIdentity();
 }
 
@@ -64,7 +67,7 @@ void drawHome()
         glVertex2d(350, 250);
         glVertex2d(350, 50);
     glEnd();
-    glBegin(GL_LINES);
+    glBegin(GL_LINES); 
         glColor3f(0.4, 0.12, 0.21);
         for (int j = 50; j < 250; j += 40)
         {
@@ -160,17 +163,17 @@ void display()
 
 int main (int argc, char * argv[])
 {
-        glutInit(&argc, argv);
-        glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
+        glutInit(&argc, argv); // инициализация функций библиотеки GLUT
+        glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB); // задание режима с двойной буферизацией, представление цвета в формате RGB
 
         glutInitWindowSize(width, height);
         glutCreateWindow("OpenGL lab1");
 
         glutReshapeFunc(reshape);
         glutDisplayFunc(display);
-        glutTimerFunc(10, timer, 1);
+        glutTimerFunc(10, timer, 1); // время в миллисекундах, функция, идентиикатор таймера
 
-        glutMainLoop();
+        glutMainLoop(); // контроль всех событий
 
         return 0;
 }
