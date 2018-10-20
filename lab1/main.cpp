@@ -5,24 +5,22 @@
 
 using namespace std;
 
-#define RGB 255
-
 #define PI 3.14
 
 // yellow
-#define R 1.0
-#define G 1.0
-#define B 0.0
+#define colorR 1.0
+#define colorG 1.0
+#define colorB 0.0
 
 const int width = 700; //x
 const int height = 600; //y
 
 const float radius = 50.0;
 // координаты центра окружности
-float X = 650.0;
-float Y = 440.0;
+float centerSunX = 650.0;
+float centerSunY = 440.0;
 
-bool count = 0; // для смены дня и ночи
+bool isDay = 0; // для смены дня и ночи
 
 void reshape(int w, int h)
 {
@@ -49,10 +47,10 @@ void drawGround()
     glEnd();
 }
 
-void drawSky(float r, float g, float b)
+void drawSky(float red, float green, float blue)
 {
     glBegin(GL_QUADS); // каждые четыре вершины образуют четырехугольник
-        glColor3f(r, g, b);
+        glColor3f(red, green, blue);
         glVertex2i(0, 150);
         glVertex2i(0, 600);
         glVertex2i(700, 600);
@@ -89,16 +87,16 @@ void drawRoof()
     glEnd();
 }
 
-void drawCircle(float x, float y, float r, float g, float b)
+void drawCircle(float center_x, float center_y, float red, float green, float blue)
 {
     glBegin(GL_POLYGON);
-        glColor3f(r, g, b);
+        glColor3f(red, green, blue);
         for (int i = 0; i < 360; i+=10)
         {
             float rad = i * PI / 180;
             float dx = radius * cos(rad);
             float dy = radius * sin(rad);
-            glVertex2f(dx + x, dy + y);
+            glVertex2f(dx + center_x, dy + center_y);
         }
     glEnd();
 }
@@ -122,20 +120,20 @@ void drawWindow()
 
 void timer(int val)
 {
-    if (X >= -radius) //движение влево
+    if (centerSunX >= -radius) //движение влево
     {
-        X--;
-        if (Y <= (height - radius) && X >= width/ 2)
-            Y += 0.35;
+        centerSunX--;
+        if (centerSunY <= (height - radius) && centerSunX >= width/ 2)
+            centerSunY += 0.35;
         else
-            Y -= 0.45;
+            centerSunY -= 0.45;
     }
-    else if (X <= -radius)
+    else if (centerSunX <= -radius)
     {
-        X = 690;
-        Y = 440;
-        drawCircle(X, Y, R, G, 1.0);
-        count = !count;
+        centerSunX = 690;
+        centerSunY = 440;
+        drawCircle(centerSunX, centerSunY, colorR, colorG, 1.0);
+        isDay = !isDay;
     }
     glutPostRedisplay(); //перерисовка экрана
     glutTimerFunc(10, timer, 1); //10 - время в миллисекундах, 1 - идентификатор таймера
@@ -146,15 +144,15 @@ void display()
         glClear(GL_COLOR_BUFFER_BIT);
 
         drawGround();
-        if (!count)
+        if (!isDay)
         {
             drawSky(0.19, 0.6, 0.8);
-            drawCircle(X, Y, R, G, B);
+            drawCircle(centerSunX, centerSunY, colorR, colorG, colorB);
         }
         else
         {
             drawSky(0.32, 0.32, 0.32);
-            drawCircle(X, Y, R, G, 1.0);
+            drawCircle(centerSunX, centerSunY, colorR, colorG, 1.0);
         }
         drawHome();
         drawWindow();
