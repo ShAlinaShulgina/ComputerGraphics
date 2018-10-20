@@ -42,10 +42,10 @@ void drawGround()
 {
     glBegin(GL_QUADS); // каждые четыре вершины образуют четырехугольник
         glColor3f(0.13, 0.55, 0.13);
-        glVertex2d(0, 0);
-        glVertex2d(0, 150);
-        glVertex2d(700, 150);
-        glVertex2d(700, 0);
+        glVertex2i(0, 0);
+        glVertex2i(0, 150);
+        glVertex2i(700, 150);
+        glVertex2i(700, 0);
     glEnd();
 }
 
@@ -53,10 +53,10 @@ void drawSky(float r, float g, float b)
 {
     glBegin(GL_QUADS); // каждые четыре вершины образуют четырехугольник
         glColor3f(r, g, b);
-        glVertex2d(0, 150);
-        glVertex2d(0, 600);
-        glVertex2d(700, 600);
-        glVertex2d(700, 150);
+        glVertex2i(0, 150);
+        glVertex2i(0, 600);
+        glVertex2i(700, 600);
+        glVertex2i(700, 150);
     glEnd();
 }
 
@@ -64,17 +64,17 @@ void drawHome()
 {
     glBegin(GL_QUADS); // каждые четыре вершины образуют четырехугольник
         glColor3f(0.36, 0.1, 0.2);
-        glVertex2d(100, 50);
-        glVertex2d(100, 250);
-        glVertex2d(350, 250);
-        glVertex2d(350, 50);
+        glVertex2i(100, 50);
+        glVertex2i(100, 250);
+        glVertex2i(350, 250);
+        glVertex2i(350, 50);
     glEnd();
     glBegin(GL_LINES);
         glColor3f(0.4, 0.12, 0.21);
         for (int j = 50; j < 250; j += 40)
         {
-            glVertex2d(100, j);
-            glVertex2d(350, j);
+            glVertex2i(100, j);
+            glVertex2i(350, j);
         }
     glEnd();
 }
@@ -83,9 +83,9 @@ void drawRoof()
 {
     glBegin(GL_TRIANGLES); // каждая отдельная тройка вершин задает треугольник
         glColor3f(0.36, 0.12, 0.2);
-        glVertex2d(75, 250);
-        glVertex2d(225, 425);
-        glVertex2d(375, 250);
+        glVertex2i(75, 250);
+        glVertex2i(225, 425);
+        glVertex2i(375, 250);
     glEnd();
 }
 
@@ -107,16 +107,16 @@ void drawWindow()
 {
     glBegin(GL_LINE_LOOP);
         glColor3f(1.0, 1.0, 1.0);
-        glVertex2d(175, 125);
-        glVertex2d(175, 200);
-        glVertex2d(275, 200);
-        glVertex2d(275, 125);
+        glVertex2i(175, 125);
+        glVertex2i(175, 200);
+        glVertex2i(275, 200);
+        glVertex2i(275, 125);
     glEnd();
     glBegin(GL_LINES);
-        glVertex2d(225, 125);
-        glVertex2d(225, 200);
-        glVertex2d(175, 162);
-        glVertex2d(275, 162);
+        glVertex2i(225, 125);
+        glVertex2i(225, 200);
+        glVertex2i(175, 162);
+        glVertex2i(275, 162);
     glEnd();
 }
 
