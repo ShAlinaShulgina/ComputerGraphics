@@ -34,20 +34,17 @@ void getArrayDxDy()
         float dy = radius * sin(rad);
         arrCoord[j] = dx;
         arrCoord[j + 1] = dy;
-        //cout << j << " : " << arrCoord[j] << " : " << arrCoord[j + 1] << endl;
     }
 }
 
 void reshape(int w, int h)
 {
         glViewport(0, 0, width, height); // задание области вывода (0,0) - левый нижний угол, (w, h) - ширина и высота
-
         glMatrixMode(GL_PROJECTION); // задание перспективной проекции;
                                      // матрица проекций задает как будут проецироваться трехмерные объекты
                                      // на плоскость экрана (в оконные координаты)
         glLoadIdentity(); // заменяет текущую матрицу на единичную
         gluOrtho2D(0, width, 0, height); // задание ортографической (параллельной) проекции
-
         glMatrixMode(GL_MODELVIEW); // далее будет проводиться только преобразование объектов сцены
         glLoadIdentity();
 }
@@ -55,6 +52,10 @@ void reshape(int w, int h)
 // рисование дома, окна и крыши
 void drawHouse()
 {
+    GLfloat arrColor[] = { 0.36, 0.1, 0.2,
+                           1.0, 1.0, 1.0,
+                           0.36, 0.12, 0.2 };
+
     GLint arrHouse[] = { //house
                          100, 50, 100, 250,
                          350, 250, 350, 50,
@@ -65,18 +66,23 @@ void drawHouse()
                          175, 162, 275, 162,
                          // roof
                          75, 250, 225, 425, 375, 250 };
+    glEnableClientState(GL_COLOR_ARRAY);
+    glColorPointer(3, GL_FLOAT, 0, arrColor);
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_INT, 0, arrHouse);
-    glColor3f(0.36, 0.1, 0.2);
+    // glColor3f(0.36, 0.1, 0.2);
     glDrawArrays(GL_QUADS, 0, 4);
 
-    glColor3f(1.0, 1.0, 1.0);
+    // glColor3f(1.0, 1.0, 1.0);
+    glColorPointer(3, GL_FLOAT, 3, arrColor);
     glDrawArrays(GL_LINE_LOOP, 4, 4);
     glDrawArrays(GL_LINES, 8, 4);
 
-    glColor3f(0.36, 0.12, 0.2);
+    // glColor3f(0.36, 0.12, 0.2);
+    glColorPointer(3, GL_FLOAT, 6, arrColor);
     glDrawArrays(GL_TRIANGLES, 12, 3);
     glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
 }
 
 // рисование травы и неба
@@ -98,7 +104,7 @@ void drawWorld()
     }
     else
     {
-        glColor3f(0.32, 0.32, 0.32);
+        glColor3f(0.32, 0.32, 0.12);
         glDrawArrays(GL_QUADS, 8, 4);
     }
     glDisableClientState(GL_VERTEX_ARRAY);
@@ -107,23 +113,29 @@ void drawWorld()
 void drawCircle(float center_x, float center_y)
 {
     GLfloat arrSun[2 * 36];
-    for(int i = 0; i < 36; i += 2)
+    for(int i = 0; i < 2 * 36; i += 2)
     {
         arrSun[i] = arrCoord[i] + center_x;
         arrSun[i + 1] = arrCoord[i + 1] + center_y;
     }
 
-    float colorSun[] = { 1.0, 1.0, 0.0, //day
-                         1.0, 1.0, 1.0 }; //night
-    
-    glEnableClientState(GL_VERTEX_ARRAY);
+    GLfloat colorSun[] = { 1.0, 1.0, 0.0, //night
+                           1.0, 1.0, 1.0 }; //day
+
     glEnableClientState(GL_COLOR_ARRAY);
-    glVertexPointer(2 * 36, GL_FLOAT, 0, arrSun);
-    if (isDay)
-        glColorPointer(3, GL_FLOAT, 0, colorSun);    
-    else
-        glColorPointer(3, GL_FLOAT, 3, colorSun); 
-    glDrawArrays(GL_POLYGON, 0, 2 * 36);
+    glColorPointer(3, GL_FLOAT, 0, &colorSun[3]);
+    if (!isDay)
+        glColorPointer(3, GL_FLOAT, 0, colorSun);
+
+    // glColor3f(1.0, 1.0, 1.0);
+    // if (!isDay)
+    //     glColor3f(1.0, 1.0, 0.0);
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(2, GL_FLOAT, 0, arrSun);
+    glDrawArrays(GL_POLYGON, 0, 36);
+
+    glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
@@ -166,7 +178,7 @@ int main (int argc, char * argv[])
         glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB); // задание режима с двойной буферизацией, представление цвета в формате RGB
 
         glutInitWindowSize(width, height);
-        glutCreateWindow("OpenGL lab1");
+        glutCreateWindow("OpenGL lab2");
 
         glutReshapeFunc(reshape);
         glutDisplayFunc(display);
