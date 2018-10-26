@@ -63,6 +63,7 @@ void drawHouse()
 
     glColor3f(0.36, 0.12, 0.2);
     glDrawArrays(GL_TRIANGLES, 12, 3);
+    glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 void drawGround()
@@ -86,6 +87,7 @@ void drawGround()
         glColor3f(0.32, 0.32, 0.32);
         glDrawArrays(GL_QUADS, 8, 4);
     }
+    glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 void drawCircle(float center_x, float center_y, float red, float green, float blue)
