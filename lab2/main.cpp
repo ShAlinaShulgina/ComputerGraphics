@@ -52,10 +52,6 @@ void reshape(int w, int h)
 // рисование дома, окна и крыши
 void drawHouse()
 {
-    GLfloat arrColor[] = { 0.36, 0.1, 0.2,
-                           1.0, 1.0, 1.0,
-                           0.36, 0.12, 0.2 };
-
     GLint arrHouse[] = { //house
                          100, 50, 100, 250,
                          350, 250, 350, 50,
@@ -66,23 +62,18 @@ void drawHouse()
                          175, 162, 275, 162,
                          // roof
                          75, 250, 225, 425, 375, 250 };
-    glEnableClientState(GL_COLOR_ARRAY);
-    glColorPointer(3, GL_FLOAT, 0, arrColor);
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_INT, 0, arrHouse);
-    // glColor3f(0.36, 0.1, 0.2);
+    glColor3f(0.36, 0.1, 0.2);
     glDrawArrays(GL_QUADS, 0, 4);
 
-    // glColor3f(1.0, 1.0, 1.0);
-    glColorPointer(3, GL_FLOAT, 3, arrColor);
+    glColor3f(1.0, 1.0, 1.0);
     glDrawArrays(GL_LINE_LOOP, 4, 4);
     glDrawArrays(GL_LINES, 8, 4);
 
-    // glColor3f(0.36, 0.12, 0.2);
-    glColorPointer(3, GL_FLOAT, 6, arrColor);
+    glColor3f(0.36, 0.12, 0.2);
     glDrawArrays(GL_TRIANGLES, 12, 3);
     glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
 }
 
 // рисование травы и неба
@@ -118,24 +109,13 @@ void drawCircle(float center_x, float center_y)
         arrSun[i] = arrCoord[i] + center_x;
         arrSun[i + 1] = arrCoord[i + 1] + center_y;
     }
-
-    GLfloat colorSun[] = { 1.0, 1.0, 0.0, //night
-                           1.0, 1.0, 1.0 }; //day
-
-    glEnableClientState(GL_COLOR_ARRAY);
-    glColorPointer(3, GL_FLOAT, 0, &colorSun[3]);
+    glColor3f(1.0, 1.0, 1.0);
     if (!isDay)
-        glColorPointer(3, GL_FLOAT, 0, colorSun);
-
-    // glColor3f(1.0, 1.0, 1.0);
-    // if (!isDay)
-    //     glColor3f(1.0, 1.0, 0.0);
+         glColor3f(1.0, 1.0, 0.0);
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, arrSun);
     glDrawArrays(GL_POLYGON, 0, 36);
-
-    glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
