@@ -23,9 +23,22 @@ float centerSunY = 440.0;
 bool isDay = 0; // для смены дня и ночи
 
 //массив координат для солнца
-GLfloat arrCoord[36 * 2];
-
-void getArrayDxDy()
+static GLfloat arrCoord[36 * 2];
+static const GLint arrHouse[] = { //house
+                     100, 50, 100, 250,
+                     350, 250, 350, 50,
+                     // window
+                     175, 125, 175, 200,
+                     275, 200, 275, 125,
+                     225, 125, 225, 200,
+                     175, 162, 275, 162,
+                     // roof
+                     75, 250, 225, 425, 375, 250 };
+static const GLint arrWorld[] = { // ground
+                      0, 0, 0, 150, width, 150, width, 0,
+                      // sky
+                       0, 150, 0, height, width, height, width, 150 };
+void getArrays()
 {
     for (int i = 0, j = 0; i < 360; i+=10, j+=2)
     {
@@ -52,16 +65,6 @@ void reshape(int w, int h)
 // рисование дома, окна и крыши
 void drawHouse()
 {
-    GLint arrHouse[] = { //house
-                         100, 50, 100, 250,
-                         350, 250, 350, 50,
-                         // window
-                         175, 125, 175, 200,
-                         275, 200, 275, 125,
-                         225, 125, 225, 200,
-                         175, 162, 275, 162,
-                         // roof
-                         75, 250, 225, 425, 375, 250 };
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_INT, 0, arrHouse);
     glColor3f(0.36, 0.1, 0.2);
@@ -79,10 +82,6 @@ void drawHouse()
 // рисование травы и неба
 void drawWorld()
 {
-    GLint arrWorld[] = { // ground
-                         0, 0, 0, 150, width, 150, width, 0,
-                         // sky
-                          0, 150, 0, height, width, height, width, 150 };
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_INT, 0, arrWorld);
     glColor3f(0.13, 0.55, 0.13);
@@ -95,7 +94,7 @@ void drawWorld()
     }
     else
     {
-        glColor3f(0.32, 0.32, 0.12);
+        glColor3f(0. , 0. , 0.);
         glDrawArrays(GL_QUADS, 8, 4);
     }
     glDisableClientState(GL_VERTEX_ARRAY);
@@ -153,7 +152,7 @@ void display()
 
 int main (int argc, char * argv[])
 {
-        getArrayDxDy();
+        getArrays();
         glutInit(&argc, argv); // инициализация функций библиотеки GLUT
         glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB); // задание режима с двойной буферизацией, представление цвета в формате RGB
 
