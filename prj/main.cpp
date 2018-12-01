@@ -1,112 +1,21 @@
-#include <iostream>
-#include <cmath>
 #include <GL/gl.h>
 #include <GL/glut.h>
 
-using namespace std;
+#include "getcoord.h"
 
 const static int width = 500;
 const static int height = 500;
 
-static float octX = 100.0;
-static float octY = 150.0;
-static float octZ = 100.0;
-
-static float extendSides = 5.; // коэффицент раздвижения граней
-// массивы точек граней октаэдра
-static float point1[3] = {0., 0., 0.};
-static float point2[3] = {0., 0., 0.};
-static float point3[3] = {0., 0., 0.};
 //поворот
 static float rotateOctX = 10.; // движение Ox up/down
 static float rotateOctY = 10.; // движение в Oy <- ->
+static bool autoRotateROctY = false;
+static bool autoRotateLOctY = false;
 
 static bool isLight = true; // вкл./выкл. освещение
 static float rotateLight = 1.; // угол вращения источника света
 
-void getNormal(float p1[3], float p2[3], float p3[3], float vNormal[3])
-{
-    float v1[3], v2[3]; // для промежуточных вычислений
-    float l; // норма
-
-    v1[0] = p2[0]- p1[0];
-    v1[1] = p2[1]- p1[1];
-    v1[2] = p2[2]- p1[2];
-
-    v2[0] = p3[0]- p1[0];
-    v2[1] = p3[1]- p1[1];
-    v2[2] = p3[2]- p1[2];
-
-    vNormal[0] = v1[1] * v2[2] - v1[2] * v2[1];
-    vNormal[1] = v1[2] * v2[0] - v1[0] * v2[2];
-    vNormal[2] = v1[0] * v2[1] - v1[1] * v2[0];
-
-    l = sqrt(vNormal[0]*vNormal[0] + vNormal[1]*vNormal[1] + vNormal[2]*vNormal[2]);
-    // нормирование
-    vNormal[0] /= l;
-    vNormal[1] /= l;
-    vNormal[2] /= l;
-}
-
-void getNewCoord(int i)
-{
-    switch(i)
-    {
-    case 0: // 1 1 1
-        point1[0] = octX + extendSides;      point1[1] = point1[2] =  extendSides;
-        point2[0] = point2[2] = extendSides; point2[1] = octY + extendSides;
-        point3[0] = point3[1] = extendSides; point3[2] = octZ + extendSides;
-        glColor3f(1., 0., 0.);
-        break;
-    case 1: //-1 1 1
-        point1[0] *= -1;
-        point2[0] *= -1;
-        point3[0] *= -1;
-        glColor3f(0., 1., 0.);
-        break;
-    case 2: // -1 -1 1
-        point1[1] *= -1;
-        point2[1] *= -1;
-        point3[1] *= -1;
-        glColor3f(0., 0., 1.);
-        break;
-    case 3: //-1 -1 -1
-        point1[2] *= -1;
-        point2[2] *= -1;
-        point3[2] *= -1;
-        glColor3f(1., 1., 0.);
-        break;
-    case 4: // -1 1 -1
-        point1[1] *= -1;
-        point2[1] *= -1;
-        point3[1] *= -1;
-        glColor3f(1., 0., 1.);
-        break;
-    case 5: // 1 -1 -1
-        point1[0] *= -1;
-        point2[0] *= -1;
-        point3[0] *= -1;
-        point1[1] *= -1;
-        point2[1] *= -1;
-        point3[1] *= -1;
-        glColor3f(0., 1., 1.);
-        break;
-    case 6: // 1 -1 1
-        point1[2] *= -1;
-        point2[2] *= -1;
-        point3[2] *= -1;
-        glColor3f(1., 1., 1.);
-        break;
-    case 7: // 1 1 -1
-        point1[1] *= -1;
-        point2[1] *= -1;
-        point3[1] *= -1;
-        point1[2] *= -1;
-        point2[2] *= -1;
-        point3[2] *= -1;
-        break;
-    }
-}
+static const int speed = 2; // скорость вращения
 
 void drawOct()
 {
@@ -219,8 +128,30 @@ void keyboard(int key, int x, int y)
         case GLUT_KEY_DOWN:
             rotateOctX -= 5;
             break;
+        case GLUT_KEY_F6:
+            autoRotateROctY = (autoRotateROctY) ? false : true;
+            break;
+        case GLUT_KEY_F7:
+            autoRotateLOctY = (autoRotateLOctY) ? false : true;
+            break;
     }
     glutPostRedisplay();
+}
+
+void timer(int val)
+{
+    if (autoRotateROctY) //Ox
+    {
+        rotateOctY += speed;
+        if (rotateOctY > 360) rotateOctY = speed;
+    }
+    else if (autoRotateLOctY) //Oy
+    {
+        rotateOctY -= speed;
+        if (rotateOctY < -360) rotateOctY = -speed;
+    }
+    glutPostRedisplay(); //перерисовка экрана
+    glutTimerFunc(10, timer, 1); //10 - время в миллисекундах, 1 - идентификатор таймера
 }
 
 void printRule()
@@ -232,7 +163,8 @@ void printRule()
          << "F4: раздвинуть грани" << endl
          << "F5: сдвинуть грани" << endl
          << "Left/Right: движение в полоскости Oy <-/-> " << endl
-         << "Up/Down: движение в плоскости Ox" << endl;
+         << "Up/Down: движение в плоскости Ox" << endl
+         << "F7: автоматическое вращение в Oy" << endl;
 }
 
 int main(int argc, char * argv[])
@@ -245,6 +177,7 @@ int main(int argc, char * argv[])
     glutCreateWindow("Oct");
 
     glutDisplayFunc(display);
+    glutTimerFunc(10, timer, 1); // время в миллисекундах, функция, идентиикатор таймера
     init();
     glutReshapeFunc(reshape);
     glutSpecialFunc(keyboard);
