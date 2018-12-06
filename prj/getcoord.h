@@ -13,6 +13,12 @@ static float point1[3] = {0., 0., 0.};
 static float point2[3] = {0., 0., 0.};
 static float point3[3] = {0., 0., 0.};
 
+static GLuint tex[8];
+
+static bool isGLColor;
+static bool isTexOne = false;
+static bool isTex = false;
+
 void getNormal(float p1[3], float p2[3], float p3[3], float vNormal[3])
 {
     float v1[3], v2[3]; // для промежуточных вычислений
@@ -45,31 +51,31 @@ void getNewCoord(int i)
         point1[0] = octX + extendSides;      point1[1] = point1[2] =  extendSides;
         point2[0] = point2[2] = extendSides; point2[1] = octY + extendSides;
         point3[0] = point3[1] = extendSides; point3[2] = octZ + extendSides;
-        glColor3f(1., 0., 0.);
+        if (isGLColor) glColor3f(1., 0., 0.);
         break;
     case 1: //-1 1 1
         point1[0] *= -1;
         point2[0] *= -1;
         point3[0] *= -1;
-        glColor3f(0., 1., 0.);
+        if (isGLColor) glColor3f(0., 1., 0.);
         break;
     case 2: // -1 -1 1
         point1[1] *= -1;
         point2[1] *= -1;
         point3[1] *= -1;
-        glColor3f(0., 0., 1.);
+        if (isGLColor) glColor3f(0., 0., 1.);
         break;
     case 3: //-1 -1 -1
         point1[2] *= -1;
         point2[2] *= -1;
         point3[2] *= -1;
-        glColor3f(1., 1., 0.);
+        if (isGLColor) glColor3f(1., 1., 0.);
         break;
     case 4: // -1 1 -1
         point1[1] *= -1;
         point2[1] *= -1;
         point3[1] *= -1;
-        glColor3f(1., 0., 1.);
+        if (isGLColor) glColor3f(1., 0., 1.);
         break;
     case 5: // 1 -1 -1
         point1[0] *= -1;
@@ -78,13 +84,13 @@ void getNewCoord(int i)
         point1[1] *= -1;
         point2[1] *= -1;
         point3[1] *= -1;
-        glColor3f(0., 1., 1.);
+        if (isGLColor) glColor3f(0., 1., 1.);
         break;
     case 6: // 1 -1 1
         point1[2] *= -1;
         point2[2] *= -1;
         point3[2] *= -1;
-        glColor3f(1., 1., 1.);
+        if (isGLColor) glColor3f(1., 1., 1.);
         break;
     case 7: // 1 1 -1
         point1[1] *= -1;

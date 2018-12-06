@@ -1,6 +1,9 @@
 #include <GL/gl.h>
 #include <GL/glut.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #include "getcoord.h"
 
 const static int width = 500;
@@ -20,24 +23,34 @@ static const int speed = 2; // скорость вращения
 void drawOct()
 {
     float norm[3] = {0. , 0. , 0.}; // массив для нормали
-    glBegin(GL_TRIANGLES);
-        for(int i = 0; i < 8; i++)
-        {
+    for(int i = 0; i < 8; i++)
+    {
+        glBindTexture(GL_TEXTURE_2D, tex[i]);
+        glBegin(GL_TRIANGLES);
             getNewCoord(i); // получение новых координат
             getNormal(point1, point2, point3, norm); // получение нормали
             // построение граней
             glNormal3fv(norm);
             if (i == 7)
-                glColor3f(1., 0., 0.);
+            {
+                if (isGLColor) glColor3f(1., 0., 0.);
+            }
+            if (isTexOne || isTex) glTexCoord2f(0.0, 0.0);
             glVertex3fv(point1);
             if (i == 7)
-                glColor3f(0., 1., 0.);
+            {
+                if (isGLColor) glColor3f(0., 1., 0.);
+            }
+            if (isTexOne || isTex) glTexCoord2f(1.0, 0.0);
             glVertex3fv(point2);
             if (i == 7)
-                glColor3f(0., 0., 1.);
+            {
+                if (isGLColor) glColor3f(0., 0., 1.);
+            }
+            if (isTexOne || isTex) glTexCoord2f(0.0, 1.0);
             glVertex3fv(point3);
-        }
-    glEnd();
+        glEnd();
+    }
 }
 // построение сферы - светильника
 void drawSphere()
@@ -56,12 +69,24 @@ void display()
     else
         glDisable(GL_LIGHT0);
 
-    glPushMatrix();
-    glRotatef(rotateOctX, 1.0, 0.0, 0.0);
-    glRotatef(rotateOctY, 0.0, 1.0, 0.0);
-    drawOct();
-    glPopMatrix();
-
+    if (isTex || isTexOne)
+    {
+        glEnable(GL_TEXTURE_2D);
+        glPushMatrix();
+        glRotatef(rotateOctX, 1.0, 0.0, 0.0);
+        glRotatef(rotateOctY, 0.0, 1.0, 0.0);
+        drawOct();
+        glPopMatrix();
+        glDisable(GL_TEXTURE_2D);
+    }
+    else
+    {
+        glPushMatrix();
+        glRotatef(rotateOctX, 1.0, 0.0, 0.0);
+        glRotatef(rotateOctY, 0.0, 1.0, 0.0);
+        drawOct();
+        glPopMatrix();
+    }
     glDisable(GL_LIGHTING);
     glRotatef(rotateLight, 0., 1., 0.); // вращение сферы относительно 'Oy' под углом 1
     drawSphere();
@@ -69,6 +94,53 @@ void display()
     glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
     glEnable(GL_LIGHTING);
     glutSwapBuffers();
+}
+
+void loadTexture()
+{
+    isGLColor = (isTexOne || isTex) ? 0 : 1;
+
+    unsigned char* image[8];
+    int w[8], h[8], bpp[8];
+
+    if (isTexOne)
+    {
+        for(int i = 0; i < 8; i++)
+        {
+            image[i] = stbi_load("img/img9.png", &w[i], &h[i], &bpp[i], STBI_rgb_alpha);
+            //Текстурирование
+            glGenTextures(1, &tex[i]); //создание и актуализация необходимой текстуры
+            glBindTexture(GL_TEXTURE_2D, tex[i]);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w[i], h[i], 0, GL_RGBA, GL_UNSIGNED_BYTE, image[i]);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            stbi_image_free(image[i]);
+        }
+    }
+    else if (isTex)
+    {
+        image[0] = stbi_load("img/img1.png", &w[0], &h[0], &bpp[0], STBI_rgb_alpha);
+        image[1] = stbi_load("img/img2.png", &w[1], &h[1], &bpp[1], STBI_rgb_alpha);
+        image[2] = stbi_load("img/img3.png", &w[2], &h[2], &bpp[2], STBI_rgb_alpha);
+        image[3] = stbi_load("img/img4.png", &w[3], &h[3], &bpp[3], STBI_rgb_alpha);
+        image[4] = stbi_load("img/img5.png", &w[4], &h[4], &bpp[4], STBI_rgb_alpha);
+        image[5] = stbi_load("img/img6.png", &w[5], &h[5], &bpp[5], STBI_rgb_alpha);
+        image[6] = stbi_load("img/img7.png", &w[6], &h[6], &bpp[6], STBI_rgb_alpha);
+        image[7] = stbi_load("img/img8.png", &w[7], &h[7], &bpp[7], STBI_rgb_alpha);
+        for(int i = 0; i < 8; i++)
+        {
+            //Текстурирование
+            glGenTextures(1, &tex[i]); //создание и актуализация необходимой текстуры
+            glBindTexture(GL_TEXTURE_2D, tex[i]);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w[i], h[i], 0, GL_RGBA, GL_UNSIGNED_BYTE, image[i]);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+            stbi_image_free(image[i]);
+        }
+    }
 }
 
 void init()
@@ -83,6 +155,8 @@ void init()
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_col);
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_NORMALIZE);
+
+    loadTexture();
 }
 
 void reshape(int w, int h)
@@ -134,6 +208,14 @@ void keyboard(int key, int x, int y)
         case GLUT_KEY_F7:
             autoRotateLOctY = (autoRotateLOctY) ? false : true;
             break;
+        case GLUT_KEY_F8:
+            isTex = (isTex) ? false : true;
+            loadTexture();
+            break;
+        case GLUT_KEY_F9:
+            isTexOne = (isTexOne) ? false : true;
+            loadTexture();
+            break;
     }
     glutPostRedisplay();
 }
@@ -164,7 +246,10 @@ void printRule()
          << "F5: сдвинуть грани" << endl
          << "Left/Right: движение в полоскости Oy <-/-> " << endl
          << "Up/Down: движение в плоскости Ox" << endl
-         << "F7: автоматическое вращение в Oy" << endl;
+         << "F7: автоматическое вращение в <-" << endl
+         << "F8: автоматическое вращение в ->" << endl
+         << "F8: Разные текстуры на все грани" << endl
+         << "F9: Одну текстуру на все грани" << endl;
 }
 
 int main(int argc, char * argv[])
