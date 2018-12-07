@@ -14,10 +14,9 @@ static float point2[3] = {0., 0., 0.};
 static float point3[3] = {0., 0., 0.};
 
 static GLuint tex[8];
-
-static bool isGLColor;
-static bool isTexOne = false;
-static bool isTex = false;
+//окрас граней
+// 0 - цвета, 1 - одна текстура, 2 - 8 текстур
+static int paint = 0;
 
 void getNormal(float p1[3], float p2[3], float p3[3], float vNormal[3])
 {
@@ -51,31 +50,31 @@ void getNewCoord(int i)
         point1[0] = octX + extendSides;      point1[1] = point1[2] =  extendSides;
         point2[0] = point2[2] = extendSides; point2[1] = octY + extendSides;
         point3[0] = point3[1] = extendSides; point3[2] = octZ + extendSides;
-        if (isGLColor) glColor3f(1., 0., 0.);
+        if (!(paint%3)) glColor3f(1., 0., 0.);
         break;
     case 1: //-1 1 1
         point1[0] *= -1;
         point2[0] *= -1;
         point3[0] *= -1;
-        if (isGLColor) glColor3f(0., 1., 0.);
+        if (!(paint%3)) glColor3f(0., 1., 0.);
         break;
     case 2: // -1 -1 1
         point1[1] *= -1;
         point2[1] *= -1;
         point3[1] *= -1;
-        if (isGLColor) glColor3f(0., 0., 1.);
+        if (!(paint%3)) glColor3f(0., 0., 1.);
         break;
     case 3: //-1 -1 -1
         point1[2] *= -1;
         point2[2] *= -1;
         point3[2] *= -1;
-        if (isGLColor) glColor3f(1., 1., 0.);
+        if (!(paint%3)) glColor3f(1., 1., 0.);
         break;
     case 4: // -1 1 -1
         point1[1] *= -1;
         point2[1] *= -1;
         point3[1] *= -1;
-        if (isGLColor) glColor3f(1., 0., 1.);
+        if (!(paint%3)) glColor3f(1., 0., 1.);
         break;
     case 5: // 1 -1 -1
         point1[0] *= -1;
@@ -84,13 +83,13 @@ void getNewCoord(int i)
         point1[1] *= -1;
         point2[1] *= -1;
         point3[1] *= -1;
-        if (isGLColor) glColor3f(0., 1., 1.);
+        if (!(paint%3)) glColor3f(0., 1., 1.);
         break;
     case 6: // 1 -1 1
         point1[2] *= -1;
         point2[2] *= -1;
         point3[2] *= -1;
-        if (isGLColor) glColor3f(1., 1., 1.);
+        if (!(paint%3)) glColor3f(1., 1., 1.);
         break;
     case 7: // 1 1 -1
         point1[1] *= -1;
