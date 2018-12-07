@@ -33,21 +33,21 @@ void drawOct()
             glNormal3fv(norm);
             if (i == 7)
             {
-                if (isGLColor) glColor3f(1., 0., 0.);
+                if (!(paint%3)) glColor3f(1., 0., 0.);
             }
-            if (isTexOne || isTex) glTexCoord2f(0.0, 0.0);
+            if (paint%3) glTexCoord2f(0.0, 0.0);
             glVertex3fv(point1);
             if (i == 7)
             {
-                if (isGLColor) glColor3f(0., 1., 0.);
+                if (!(paint%3)) glColor3f(0., 1., 0.);
             }
-            if (isTexOne || isTex) glTexCoord2f(1.0, 0.0);
+            if (paint%3) glTexCoord2f(1.0, 0.0);
             glVertex3fv(point2);
             if (i == 7)
             {
-                if (isGLColor) glColor3f(0., 0., 1.);
+                if (!(paint%3)) glColor3f(0., 0., 1.);
             }
-            if (isTexOne || isTex) glTexCoord2f(0.0, 1.0);
+            if (paint%3) glTexCoord2f(0.0, 1.0);
             glVertex3fv(point3);
         glEnd();
     }
@@ -69,7 +69,7 @@ void display()
     else
         glDisable(GL_LIGHT0);
 
-    if (isTex || isTexOne)
+    if (paint%3)
     {
         glEnable(GL_TEXTURE_2D);
         glPushMatrix();
@@ -98,12 +98,10 @@ void display()
 
 void loadTexture()
 {
-    isGLColor = (isTexOne || isTex) ? 0 : 1;
-
     unsigned char* image[8];
     int w[8], h[8], bpp[8];
 
-    if (isTexOne)
+    if (paint%3 == 1)
     {
         for(int i = 0; i < 8; i++)
         {
@@ -118,7 +116,7 @@ void loadTexture()
             stbi_image_free(image[i]);
         }
     }
-    else if (isTex)
+    else if (paint%3 == 2)
     {
         image[0] = stbi_load("img/img1.png", &w[0], &h[0], &bpp[0], STBI_rgb_alpha);
         image[1] = stbi_load("img/img2.png", &w[1], &h[1], &bpp[1], STBI_rgb_alpha);
@@ -209,11 +207,7 @@ void keyboard(int key, int x, int y)
             autoRotateLOctY = (autoRotateLOctY) ? false : true;
             break;
         case GLUT_KEY_F8:
-            isTex = (isTex) ? false : true;
-            loadTexture();
-            break;
-        case GLUT_KEY_F9:
-            isTexOne = (isTexOne) ? false : true;
+            paint += 1;
             loadTexture();
             break;
     }
@@ -246,10 +240,9 @@ void printRule()
          << "F5: сдвинуть грани" << endl
          << "Left/Right: движение в полоскости Oy <-/-> " << endl
          << "Up/Down: движение в плоскости Ox" << endl
-         << "F7: автоматическое вращение в <-" << endl
-         << "F8: автоматическое вращение в ->" << endl
-         << "F8: Разные текстуры на все грани" << endl
-         << "F9: Одну текстуру на все грани" << endl;
+         << "F6: автоматическое вращение в <-" << endl
+         << "F7: автоматическое вращение в ->" << endl
+         << "F8: Изменить окрас граней" << endl;
 }
 
 int main(int argc, char * argv[])
