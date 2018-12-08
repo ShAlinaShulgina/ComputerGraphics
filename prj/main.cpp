@@ -20,6 +20,8 @@ static float rotateLight = 1.; // угол вращения источника �
 
 static const int speed = 2; // скорость вращения
 
+static bool isBlend = false;
+
 void drawOct()
 {
     float norm[3] = {0. , 0. , 0.}; // массив для нормали
@@ -69,6 +71,18 @@ void display()
         glEnable(GL_LIGHT0);
     else
         glDisable(GL_LIGHT0);
+
+    if (isBlend)
+    {
+        glEnable(GL_BLEND);
+        glDepthMask(GL_FALSE);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    }
+    else
+    {
+        glDepthMask(GL_TRUE);
+        glDisable(GL_BLEND);
+    }
 
     if (paint%3)
     {
@@ -158,7 +172,7 @@ void keyboard(int key, int x, int y)
     switch(key)
     {
         case GLUT_KEY_F1:
-            isLight = (isLight) ? false : true;
+            isLight = isLight ? false : true;
             break;
         case GLUT_KEY_F2:
             rotateLight = (rotateLight >= 0) ? rotateLight + 5 : 350;
@@ -185,13 +199,16 @@ void keyboard(int key, int x, int y)
             rotateOctX -= 5;
             break;
         case GLUT_KEY_F6:
-            autoRotateROctY = (autoRotateROctY) ? false : true;
+            autoRotateROctY = autoRotateROctY ? false : true;
             break;
         case GLUT_KEY_F7:
-            autoRotateLOctY = (autoRotateLOctY) ? false : true;
+            autoRotateLOctY = autoRotateLOctY ? false : true;
             break;
         case GLUT_KEY_F8:
             paint += 1;
+            break;
+        case GLUT_KEY_F9:
+            isBlend = isBlend ? false : true;
             break;
     }
     glutPostRedisplay();
@@ -225,7 +242,8 @@ void printRule()
          << "Up/Down: движение в плоскости Ox" << endl
          << "F6: автоматическое вращение в <-" << endl
          << "F7: автоматическое вращение в ->" << endl
-         << "F8: Изменить окрас граней" << endl;
+         << "F8: Изменить окрас граней" << endl
+         << "F9: Установить прозрачность граней" << endl;
 }
 
 int main(int argc, char * argv[])
