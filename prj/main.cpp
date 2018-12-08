@@ -25,7 +25,8 @@ void drawOct()
     float norm[3] = {0. , 0. , 0.}; // массив для нормали
     for(int i = 0; i < 8; i++)
     {
-        glBindTexture(GL_TEXTURE_2D, tex[i]);
+        if ((paint%3) == 2) glBindTexture(GL_TEXTURE_2D, tex[i]);
+        if ((paint%3) == 1) glBindTexture(GL_TEXTURE_2D, tex[8]);
         glBegin(GL_TRIANGLES);
             getNewCoord(i); // получение новых координат
             getNormal(point1, point2, point3, norm); // получение нормали
@@ -98,46 +99,29 @@ void display()
 
 void loadTexture()
 {
-    unsigned char* image[8];
-    int w[8], h[8], bpp[8];
+    unsigned char* image[9];
+    int w[9], h[9], bpp[9];
 
-    if (paint%3 == 1)
+    image[0] = stbi_load("img/img1.png", &w[0], &h[0], &bpp[0], STBI_rgb_alpha);
+    image[1] = stbi_load("img/img2.png", &w[1], &h[1], &bpp[1], STBI_rgb_alpha);
+    image[2] = stbi_load("img/img3.png", &w[2], &h[2], &bpp[2], STBI_rgb_alpha);
+    image[3] = stbi_load("img/img4.png", &w[3], &h[3], &bpp[3], STBI_rgb_alpha);
+    image[4] = stbi_load("img/img5.png", &w[4], &h[4], &bpp[4], STBI_rgb_alpha);
+    image[5] = stbi_load("img/img6.png", &w[5], &h[5], &bpp[5], STBI_rgb_alpha);
+    image[6] = stbi_load("img/img7.png", &w[6], &h[6], &bpp[6], STBI_rgb_alpha);
+    image[7] = stbi_load("img/img8.png", &w[7], &h[7], &bpp[7], STBI_rgb_alpha);
+    image[8] = stbi_load("img/img10.png", &w[8], &h[8], &bpp[8], STBI_rgb_alpha);
+    for(int i = 0; i < 9; i++)
     {
-        for(int i = 0; i < 8; i++)
-        {
-            image[i] = stbi_load("img/img9.png", &w[i], &h[i], &bpp[i], STBI_rgb_alpha);
-            //Текстурирование
-            glGenTextures(1, &tex[i]); //создание и актуализация необходимой текстуры
-            glBindTexture(GL_TEXTURE_2D, tex[i]);
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w[i], h[i], 0, GL_RGBA, GL_UNSIGNED_BYTE, image[i]);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            stbi_image_free(image[i]);
-        }
-    }
-    else if (paint%3 == 2)
-    {
-        image[0] = stbi_load("img/img1.png", &w[0], &h[0], &bpp[0], STBI_rgb_alpha);
-        image[1] = stbi_load("img/img2.png", &w[1], &h[1], &bpp[1], STBI_rgb_alpha);
-        image[2] = stbi_load("img/img3.png", &w[2], &h[2], &bpp[2], STBI_rgb_alpha);
-        image[3] = stbi_load("img/img4.png", &w[3], &h[3], &bpp[3], STBI_rgb_alpha);
-        image[4] = stbi_load("img/img5.png", &w[4], &h[4], &bpp[4], STBI_rgb_alpha);
-        image[5] = stbi_load("img/img6.png", &w[5], &h[5], &bpp[5], STBI_rgb_alpha);
-        image[6] = stbi_load("img/img7.png", &w[6], &h[6], &bpp[6], STBI_rgb_alpha);
-        image[7] = stbi_load("img/img8.png", &w[7], &h[7], &bpp[7], STBI_rgb_alpha);
-        for(int i = 0; i < 8; i++)
-        {
-            //Текстурирование
-            glGenTextures(1, &tex[i]); //создание и актуализация необходимой текстуры
-            glBindTexture(GL_TEXTURE_2D, tex[i]);
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w[i], h[i], 0, GL_RGBA, GL_UNSIGNED_BYTE, image[i]);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        //Текстурирование
+        glGenTextures(1, &tex[i]); //создание и актуализация необходимой текстуры
+        glBindTexture(GL_TEXTURE_2D, tex[i]);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w[i], h[i], 0, GL_RGBA, GL_UNSIGNED_BYTE, image[i]);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-            stbi_image_free(image[i]);
-        }
+        stbi_image_free(image[i]);
     }
 }
 
@@ -208,7 +192,6 @@ void keyboard(int key, int x, int y)
             break;
         case GLUT_KEY_F8:
             paint += 1;
-            loadTexture();
             break;
     }
     glutPostRedisplay();

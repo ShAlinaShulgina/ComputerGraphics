@@ -13,7 +13,7 @@ static float point1[3] = {0., 0., 0.};
 static float point2[3] = {0., 0., 0.};
 static float point3[3] = {0., 0., 0.};
 
-static GLuint tex[8];
+static GLuint tex[9];
 //окрас граней
 // 0 - цвета, 1 - одна текстура, 2 - 8 текстур
 static int paint = 0;
