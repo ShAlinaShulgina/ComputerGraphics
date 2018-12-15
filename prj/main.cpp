@@ -17,6 +17,8 @@ static bool autoRotateLOctY = false;
 
 static bool isLight = true; // вкл./выкл. освещение
 static float rotateLight = 1.; // угол вращения источника света
+static bool autoRotateLightR = false;
+static bool autoRotateLightL = false;
 
 static const int speed = 2; // скорость вращения
 
@@ -175,10 +177,10 @@ void keyboard(int key, int x, int y)
             isLight = isLight ? false : true;
             break;
         case GLUT_KEY_F2:
-            rotateLight = (rotateLight >= 0) ? rotateLight + 5 : 350;
+            rotateLight = (rotateLight >= 0) ? rotateLight + 5 : 360;
             break;
         case GLUT_KEY_F3:
-            rotateLight = (rotateLight <= 0) ? 350 : rotateLight - 5;
+            rotateLight = (rotateLight <= 0) ? 360 : rotateLight - 5;
             break;
         case GLUT_KEY_F4:
             extendSides = (abs(extendSides) < 200) ? abs(extendSides) + 5 : 95;
@@ -200,15 +202,25 @@ void keyboard(int key, int x, int y)
             break;
         case GLUT_KEY_F6:
             autoRotateROctY = autoRotateROctY ? false : true;
+            if (autoRotateROctY) autoRotateLOctY = false;
             break;
         case GLUT_KEY_F7:
             autoRotateLOctY = autoRotateLOctY ? false : true;
+            if (autoRotateLOctY) autoRotateROctY = false;
             break;
         case GLUT_KEY_F8:
             paint += 1;
             break;
         case GLUT_KEY_F9:
             isBlend = isBlend ? false : true;
+            break;
+        case GLUT_KEY_F10:
+            autoRotateLightR = autoRotateLightR ? false : true;
+            if (autoRotateLightR) autoRotateLightL = false;
+            break;
+        case GLUT_KEY_F11:
+            autoRotateLightL = autoRotateLightL ? false : true;
+            if (autoRotateLightL) autoRotateLightR = false;
             break;
     }
     glutPostRedisplay();
@@ -225,6 +237,16 @@ void timer(int val)
     {
         rotateOctY -= speed;
         if (rotateOctY < -360) rotateOctY = -speed;
+    }
+    if (autoRotateLightR) //Ox
+    {
+        rotateLight += speed;
+        if (rotateLight > 360) rotateLight = speed;
+    }
+    else if (autoRotateLightL) //Oy
+    {
+        rotateLight -= speed;
+        if (rotateLight < -360) rotateLight = -speed;
     }
     glutPostRedisplay(); //перерисовка экрана
     glutTimerFunc(10, timer, 1); //10 - время в миллисекундах, 1 - идентификатор таймера
@@ -243,7 +265,9 @@ void printRule()
          << "F6: автоматическое вращение в <-" << endl
          << "F7: автоматическое вращение в ->" << endl
          << "F8: Изменить окрас граней" << endl
-         << "F9: Установить прозрачность граней" << endl;
+         << "F9: Установить прозрачность граней" << endl
+         << "F10: автоматическое вращение источника света <-" << endl
+         << "F11: автоматическое вращение источника света ->" << endl;
 }
 
 int main(int argc, char * argv[])
