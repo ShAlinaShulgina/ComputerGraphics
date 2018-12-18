@@ -1,13 +1,30 @@
 #include <GL/gl.h>
 #include <GL/glut.h>
+#include <iostream>
+#include <cmath>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-#include "getcoord.h"
+using namespace std;
 
 const static int width = 500;
 const static int height = 500;
+
+static float octX = 100.0;
+static float octY = 150.0;
+static float octZ = 100.0;
+
+static float extendSides = 5.; // коэффицент раздвижения граней
+// массивы точек граней октаэдра
+static float point1[3] = {0., 0., 0.};
+static float point2[3] = {0., 0., 0.};
+static float point3[3] = {0., 0., 0.};
+
+static GLuint tex[9];
+//окрас граней
+// 0 - цвета, 1 - одна текстура, 2 - 8 текстур
+static int paint = 0;
 
 //поворот
 static float rotateOctX = 10.; // движение Ox up/down
@@ -24,38 +41,203 @@ static const int speed = 2; // скорость вращения
 
 static bool isBlend = false;
 
-void drawOct()
+static bool isListOct = false;
+static GLuint list;
+
+void getNormal(float p1[3], float p2[3], float p3[3], float vNormal[3])
+{
+    float v1[3], v2[3]; // для промежуточных вычислений
+    float l; // норма
+
+    v1[0] = p2[0]- p1[0];
+    v1[1] = p2[1]- p1[1];
+    v1[2] = p2[2]- p1[2];
+
+    v2[0] = p3[0]- p1[0];
+    v2[1] = p3[1]- p1[1];
+    v2[2] = p3[2]- p1[2];
+
+    vNormal[0] = v1[1] * v2[2] - v1[2] * v2[1];
+    vNormal[1] = v1[2] * v2[0] - v1[0] * v2[2];
+    vNormal[2] = v1[0] * v2[1] - v1[1] * v2[0];
+
+    l = sqrt(vNormal[0]*vNormal[0] + vNormal[1]*vNormal[1] + vNormal[2]*vNormal[2]);
+    // нормирование
+    vNormal[0] /= l;
+    vNormal[1] /= l;
+    vNormal[2] /= l;
+}
+
+void side()
 {
     float norm[3] = {0. , 0. , 0.}; // массив для нормали
-    for(int i = 0; i < 8; i++)
+    glBegin(GL_TRIANGLES);
+        point1[0] = octX + extendSides;      point1[1] = point1[2] =  extendSides;
+        point2[0] = point2[2] = extendSides; point2[1] = octY + extendSides;
+        point3[0] = point3[1] = extendSides; point3[2] = octZ + extendSides;
+        getNormal(point1, point2, point3, norm); // получение нормали
+        // построение граней
+        glNormal3fv(norm); //нормаль к поверхности останется неизменной
+        if (paint%3) glTexCoord2f(0.0, 0.0);
+        glVertex3fv(point1);
+        if (paint%3) glTexCoord2f(1.0, 0.0);
+        glVertex3fv(point2);
+        if (paint%3) glTexCoord2f(0.0, 1.0);
+        glVertex3fv(point3);
+    glEnd();
+}
+
+void sideSlice()
+{
+    float norm[3] = {0. , 0. , 0.}; // массив для нормали
+    point1[0] = octX + extendSides;      point1[1] = point1[2] =  extendSides;
+    point2[0] = point2[2] = extendSides; point2[1] = octY + extendSides;
+    point3[0] = point3[1] = extendSides; point3[2] = octZ + extendSides;
+    getNormal(point1, point2, point3, norm); // получение нормали
+    // построение граней
+    glNormal3fv(norm); //нормаль к поверхности останется неизменной
+    for(int k = 0; k < 100; k++)
     {
-        if ((paint%3) == 2) glBindTexture(GL_TEXTURE_2D, tex[i]);
-        if ((paint%3) == 1) glBindTexture(GL_TEXTURE_2D, tex[8]);
-        glBegin(GL_TRIANGLES);
-            getNewCoord(i); // получение новых координат
-            getNormal(point1, point2, point3, norm); // получение нормали
-            // построение граней
-            glNormal3fv(norm);
-            if (i == 7)
-            {
-                if (!(paint%3)) glColor3f(1., 0., 0.);
-            }
-            if (paint%3) glTexCoord2f(0.0, 0.0);
-            glVertex3fv(point1);
-            if (i == 7)
-            {
-                if (!(paint%3)) glColor3f(0., 1., 0.);
-            }
-            if (paint%3) glTexCoord2f(1.0, 0.0);
-            glVertex3fv(point2);
-            if (i == 7)
-            {
-                if (!(paint%3)) glColor3f(0., 0., 1.);
-            }
-            if (paint%3) glTexCoord2f(0.0, 1.0);
-            glVertex3fv(point3);
+        glBegin(GL_POLYGON);
+        glVertex3f(point1[0]-k, point1[1]+k*1.5,point1[2]);
+        glVertex3f(point3[0], point3[1]+k*1.5,point3[2]-k);
+        glVertex3f(point1[0]-(k-1), point1[1]+(k+1)*1.5,point1[2]);
+        glVertex3f(point3[0], point3[1]+(k+1)*1.5,point3[2]-(k-1));
+        k++;
         glEnd();
     }
+}
+//отрисовка окраэдра линиями для использования display list
+void drawOctSlice()
+{
+    glPushMatrix();
+        if (!(paint%3)) glColor3f(1.0, 0.0, 0.0);
+        sideSlice();//рисует грань
+
+        glPushMatrix();
+            glTranslatef(1.0, 0.0, 0.0);
+            glRotatef(90, 0.0, 1.0, 0.0);
+            if (!(paint%3)) glColor3f(0.0, 1.0, 0.0);
+            sideSlice();
+        glPopMatrix();
+
+        glPushMatrix();
+            glTranslatef(1.0, 0.0, 0.0);
+            glRotatef(180 ,0.0, 1.0, 0.0);
+            if (!(paint%3)) glColor3f(0.0, 0.0, 1.0);
+            sideSlice();
+        glPopMatrix();
+
+        glPushMatrix();
+            glTranslatef(1.0, 0.0, 0.0);
+            glRotatef(270, 0.0, 1.0, 0.0);
+            if (!(paint%3)) glColor3f(1.0, 1.0, 0.0);
+            sideSlice();
+        glPopMatrix();
+
+        glPushMatrix();
+            glTranslatef(1.0, 0.0, 0.0);
+            glRotatef(180.0, 1.0, 0.0, 0.0);
+            glRotatef(90, 0.0, 1.0, 0.0);
+            if (!(paint%3)) glColor3f(1.0, 0.0, 1.0);
+            sideSlice();
+        glPopMatrix();
+
+        glPushMatrix();
+            glTranslatef(1.0, 0.0, 0.0);
+            glRotatef(180.0, 1.0, 0.0, 0.0);
+            glRotatef(180 ,0.0, 1.0, 0.0);
+            if (!(paint%3)) glColor3f(0.0, 1.0, 1.0);
+            sideSlice();
+        glPopMatrix();
+
+        glPushMatrix();
+            glTranslatef(1.0, 0.0, 0.0);
+            glRotatef(180.0, 1.0, 0.0, 0.0);
+            glRotatef(270, 0.0, 1.0, 0.0);
+            if (!(paint%3)) glColor3f(1.0, 1.0, 1.0);
+            sideSlice();
+        glPopMatrix();
+
+        glPushMatrix();
+            glTranslatef(1.0, 0.0, 0.0);
+            glRotatef(180.0, 1.0, 0.0, 0.0);
+            glRotatef(360, 0.0, 1.0, 0.0);
+            if (!(paint%3)) glColor3f(0.10, 0.08, 0.24);
+            sideSlice();
+        glPopMatrix();
+    glPopMatrix();
+}
+
+void drawOct()
+{
+    int i = 0;
+    if ((paint%3) == 2) glBindTexture(GL_TEXTURE_2D, tex[i]);
+    if ((paint%3) == 1) glBindTexture(GL_TEXTURE_2D, tex[8]);
+    glPushMatrix();
+        if (!(paint%3)) glColor3f(1.0, 0.0, 0.0);
+        side();//рисует грань
+        i++;
+        if ((paint%3) == 2) glBindTexture(GL_TEXTURE_2D, tex[i]);
+        glPushMatrix();
+            glTranslatef(1.0, 0.0, 0.0);
+            glRotatef(90, 0.0, 1.0, 0.0);
+            if (!(paint%3)) glColor3f(0.0, 1.0, 0.0);
+            side();
+        glPopMatrix();
+        i++;
+        if ((paint%3) == 2) glBindTexture(GL_TEXTURE_2D, tex[i]);
+        glPushMatrix();
+            glTranslatef(1.0, 0.0, 0.0);
+            glRotatef(180 ,0.0, 1.0, 0.0);
+            if (!(paint%3)) glColor3f(0.0, 0.0, 1.0);
+            side();
+        glPopMatrix();
+        i++;
+        if ((paint%3) == 2) glBindTexture(GL_TEXTURE_2D, tex[i]);
+        glPushMatrix();
+            glTranslatef(1.0, 0.0, 0.0);
+            glRotatef(270, 0.0, 1.0, 0.0);
+            if (!(paint%3)) glColor3f(1.0, 1.0, 0.0);
+            side();
+        glPopMatrix();
+        i++;
+        if ((paint%3) == 2) glBindTexture(GL_TEXTURE_2D, tex[i]);
+        glPushMatrix();
+            glTranslatef(1.0, 0.0, 0.0);
+            glRotatef(180.0, 1.0, 0.0, 0.0);
+            glRotatef(90, 0.0, 1.0, 0.0);
+            if (!(paint%3)) glColor3f(1.0, 0.0, 1.0);
+            side();
+        glPopMatrix();
+        i++;
+        if ((paint%3) == 2) glBindTexture(GL_TEXTURE_2D, tex[i]);
+        glPushMatrix();
+            glTranslatef(1.0, 0.0, 0.0);
+            glRotatef(180.0, 1.0, 0.0, 0.0);
+            glRotatef(180 ,0.0, 1.0, 0.0);
+            if (!(paint%3)) glColor3f(0.0, 1.0, 1.0);
+            side();
+        glPopMatrix();
+        i++;
+        if ((paint%3) == 2) glBindTexture(GL_TEXTURE_2D, tex[i]);
+        glPushMatrix();
+            glTranslatef(1.0, 0.0, 0.0);
+            glRotatef(180.0, 1.0, 0.0, 0.0);
+            glRotatef(270, 0.0, 1.0, 0.0);
+            if (!(paint%3)) glColor3f(1.0, 1.0, 1.0);
+            side();
+        glPopMatrix();
+        i++;
+        if ((paint%3) == 2) glBindTexture(GL_TEXTURE_2D, tex[i]);
+        glPushMatrix();
+            glTranslatef(1.0, 0.0, 0.0);
+            glRotatef(180.0, 1.0, 0.0, 0.0);
+            glRotatef(360, 0.0, 1.0, 0.0);
+            if (!(paint%3)) glColor3f(0.10, 0.08, 0.24);
+            side();
+        glPopMatrix();
+    glPopMatrix();
 }
 // построение сферы - светильника
 void drawSphere()
@@ -92,7 +274,10 @@ void display()
         glPushMatrix();
         glRotatef(rotateOctX, 1.0, 0.0, 0.0);
         glRotatef(rotateOctY, 0.0, 1.0, 0.0);
-        drawOct();
+        if (!isListOct)
+            drawOct();
+        else
+            glCallList(list);
         glPopMatrix();
         glDisable(GL_TEXTURE_2D);
     }
@@ -101,7 +286,10 @@ void display()
         glPushMatrix();
         glRotatef(rotateOctX, 1.0, 0.0, 0.0);
         glRotatef(rotateOctY, 0.0, 1.0, 0.0);
-        drawOct();
+        if (!isListOct)
+            drawOct();
+        else
+            glCallList(list);
         glPopMatrix();
     }
     glDisable(GL_LIGHTING);
@@ -152,7 +340,11 @@ void init()
     GLfloat light_col[] = {1.0, 1.0, 1.0, 1.0};
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_col);
     glEnable(GL_COLOR_MATERIAL);
-    glEnable(GL_NORMALIZE);
+
+    list = glGenLists(1);
+    glNewList(list, GL_COMPILE);
+        drawOctSlice();
+    glEndList();
 
     loadTexture();
 }
@@ -221,6 +413,9 @@ void keyboard(int key, int x, int y)
         case GLUT_KEY_F11:
             autoRotateLightL = autoRotateLightL ? false : true;
             if (autoRotateLightL) autoRotateLightR = false;
+            break;
+        case GLUT_KEY_F12:
+            isListOct = isListOct ? false : true;
             break;
     }
     glutPostRedisplay();
