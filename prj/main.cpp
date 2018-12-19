@@ -96,7 +96,7 @@ void sideSlice()
     getNormal(point1, point2, point3, norm); // получение нормали
     // построение граней
     glNormal3fv(norm); //нормаль к поверхности останется неизменной
-    for(int k = 0; k < 100; k++)
+    for(int k = 0; k < 100000; k++)
     {
         glBegin(GL_POLYGON);
         glVertex3f(point1[0]-k, point1[1]+k*1.5,point1[2]);
@@ -176,14 +176,14 @@ void drawOct()
     if ((paint%3) == 1) glBindTexture(GL_TEXTURE_2D, tex[8]);
     glPushMatrix();
         if (!(paint%3)) glColor3f(1.0, 0.0, 0.0);
-        side();//рисует грань
+        sideSlice();//рисует грань
         i++;
         if ((paint%3) == 2) glBindTexture(GL_TEXTURE_2D, tex[i]);
         glPushMatrix();
             glTranslatef(1.0, 0.0, 0.0);
             glRotatef(90, 0.0, 1.0, 0.0);
             if (!(paint%3)) glColor3f(0.0, 1.0, 0.0);
-            side();
+            sideSlice();
         glPopMatrix();
         i++;
         if ((paint%3) == 2) glBindTexture(GL_TEXTURE_2D, tex[i]);
@@ -191,7 +191,7 @@ void drawOct()
             glTranslatef(1.0, 0.0, 0.0);
             glRotatef(180 ,0.0, 1.0, 0.0);
             if (!(paint%3)) glColor3f(0.0, 0.0, 1.0);
-            side();
+            sideSlice();
         glPopMatrix();
         i++;
         if ((paint%3) == 2) glBindTexture(GL_TEXTURE_2D, tex[i]);
@@ -199,7 +199,7 @@ void drawOct()
             glTranslatef(1.0, 0.0, 0.0);
             glRotatef(270, 0.0, 1.0, 0.0);
             if (!(paint%3)) glColor3f(1.0, 1.0, 0.0);
-            side();
+            sideSlice();
         glPopMatrix();
         i++;
         if ((paint%3) == 2) glBindTexture(GL_TEXTURE_2D, tex[i]);
@@ -208,7 +208,7 @@ void drawOct()
             glRotatef(180.0, 1.0, 0.0, 0.0);
             glRotatef(90, 0.0, 1.0, 0.0);
             if (!(paint%3)) glColor3f(1.0, 0.0, 1.0);
-            side();
+            sideSlice();
         glPopMatrix();
         i++;
         if ((paint%3) == 2) glBindTexture(GL_TEXTURE_2D, tex[i]);
@@ -217,7 +217,7 @@ void drawOct()
             glRotatef(180.0, 1.0, 0.0, 0.0);
             glRotatef(180 ,0.0, 1.0, 0.0);
             if (!(paint%3)) glColor3f(0.0, 1.0, 1.0);
-            side();
+            sideSlice();
         glPopMatrix();
         i++;
         if ((paint%3) == 2) glBindTexture(GL_TEXTURE_2D, tex[i]);
@@ -226,7 +226,7 @@ void drawOct()
             glRotatef(180.0, 1.0, 0.0, 0.0);
             glRotatef(270, 0.0, 1.0, 0.0);
             if (!(paint%3)) glColor3f(1.0, 1.0, 1.0);
-            side();
+            sideSlice();
         glPopMatrix();
         i++;
         if ((paint%3) == 2) glBindTexture(GL_TEXTURE_2D, tex[i]);
@@ -235,7 +235,7 @@ void drawOct()
             glRotatef(180.0, 1.0, 0.0, 0.0);
             glRotatef(360, 0.0, 1.0, 0.0);
             if (!(paint%3)) glColor3f(0.10, 0.08, 0.24);
-            side();
+            sideSlice();
         glPopMatrix();
     glPopMatrix();
 }
