@@ -41,7 +41,7 @@ static const int speed = 2; // скорость вращения
 
 static bool isBlend = false;
 
-static bool isListOct = true;
+static bool isListOct = false;
 static GLuint list;
 
 void getNormal(float p1[3], float p2[3], float p3[3], float vNormal[3])
