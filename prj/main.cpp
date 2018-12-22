@@ -41,7 +41,7 @@ static const int speed = 2; // скорость вращения
 
 static bool isBlend = false;
 
-static bool isListOct = false;
+static bool isListOct = true;
 static GLuint list;
 
 void getNormal(float p1[3], float p2[3], float p3[3], float vNormal[3])
@@ -96,7 +96,7 @@ void sideSlice()
     getNormal(point1, point2, point3, norm); // получение нормали
     // построение граней
     glNormal3fv(norm); //нормаль к поверхности останется неизменной
-    for(int k = 0; k < 100; k++)
+    for(int k = 0; k < 100000; k++)
     {
         glBegin(GL_POLYGON);
         glVertex3f(point1[0]-k, point1[1]+k*1.5,point1[2]);
@@ -462,7 +462,8 @@ void printRule()
          << "F8: Изменить окрас граней" << endl
          << "F9: Установить прозрачность граней" << endl
          << "F10: автоматическое вращение источника света <-" << endl
-         << "F11: автоматическое вращение источника света ->" << endl;
+         << "F11: автоматическое вращение источника света ->" << endl
+         << "F12: нарисовать октаэдр с помощью display list" << endl;
 }
 
 int main(int argc, char * argv[])
