@@ -96,14 +96,14 @@ void sideSlice()
     getNormal(point1, point2, point3, norm); // получение нормали
     // построение граней
     glNormal3fv(norm); //нормаль к поверхности останется неизменной
-    for(int k = 0; k < 100000; k++)
+    for(int k = 0; k < 100; k++)
     {
         glBegin(GL_POLYGON);
         glVertex3f(point1[0]-k, point1[1]+k*1.5,point1[2]);
         glVertex3f(point3[0], point3[1]+k*1.5,point3[2]-k);
         glVertex3f(point1[0]-(k-1), point1[1]+(k+1)*1.5,point1[2]);
         glVertex3f(point3[0], point3[1]+(k+1)*1.5,point3[2]-(k-1));
-        k++;
+        k+=0.1;
         glEnd();
     }
 }
