@@ -67,26 +67,7 @@ void getNormal(float p1[3], float p2[3], float p3[3], float vNormal[3])
     vNormal[1] /= l;
     vNormal[2] /= l;
 }
-
-void side()
-{
-    float norm[3] = {0. , 0. , 0.}; // массив для нормали
-    glBegin(GL_TRIANGLES);
-        point1[0] = octX + extendSides;      point1[1] = point1[2] =  extendSides;
-        point2[0] = point2[2] = extendSides; point2[1] = octY + extendSides;
-        point3[0] = point3[1] = extendSides; point3[2] = octZ + extendSides;
-        getNormal(point1, point2, point3, norm); // получение нормали
-        // построение граней
-        glNormal3fv(norm); //нормаль к поверхности останется неизменной
-        if (paint%3) glTexCoord2f(0.0, 0.0);
-        glVertex3fv(point1);
-        if (paint%3) glTexCoord2f(1.0, 0.0);
-        glVertex3fv(point2);
-        if (paint%3) glTexCoord2f(0.0, 1.0);
-        glVertex3fv(point3);
-    glEnd();
-}
-
+//==================== display list ============================================
 void sideSlice()
 {
     float norm[3] = {0. , 0. , 0.}; // массив для нормали
@@ -168,6 +149,28 @@ void drawOctSlice()
         glPopMatrix();
     glPopMatrix();
 }
+//==============================================================================
+void side(int countSide = 0)
+{
+    float norm[3] = {0. , 0. , 0.}; // массив для нормали
+    glBegin(GL_TRIANGLES);
+        point1[0] = octX + extendSides;      point1[1] = point1[2] =  extendSides;
+        point2[0] = point2[2] = extendSides; point2[1] = octY + extendSides;
+        point3[0] = point3[1] = extendSides; point3[2] = octZ + extendSides;
+        getNormal(point1, point2, point3, norm); // получение нормали
+        // построение граней
+        glNormal3fv(norm); //нормаль к поверхности останется неизменной
+        if (paint%3) glTexCoord2f(0.0, 0.0);
+        if (!(paint%3) && countSide) glColor3f(0.0, 0.0, 1.0);
+        glVertex3fv(point1);
+        if (paint%3) glTexCoord2f(1.0, 0.0);
+        if (!(paint%3) && countSide) glColor3f(0.0, 1.0, 0.0);
+        glVertex3fv(point2);
+        if (paint%3) glTexCoord2f(0.0, 1.0);
+        if (!(paint%3) && countSide) glColor3f(1.0, 0.0, 0.0);
+        glVertex3fv(point3);
+    glEnd();
+}
 
 void drawOct()
 {
@@ -235,7 +238,7 @@ void drawOct()
             glRotatef(180.0, 1.0, 0.0, 0.0);
             glRotatef(360, 0.0, 1.0, 0.0);
             if (!(paint%3)) glColor3f(0.10, 0.08, 0.24);
-            side();
+            side(i);
         glPopMatrix();
     glPopMatrix();
 }
@@ -274,10 +277,7 @@ void display()
         glPushMatrix();
         glRotatef(rotateOctX, 1.0, 0.0, 0.0);
         glRotatef(rotateOctY, 0.0, 1.0, 0.0);
-        if (!isListOct)
-            drawOct();
-        else
-            glCallList(list);
+        drawOct();
         glPopMatrix();
         glDisable(GL_TEXTURE_2D);
     }
